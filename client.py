@@ -14,18 +14,30 @@ class client(object):
     def __init__(self,host,port):
         self.host=host
         self.port = port
-    def send_str(self,var,contents):
+    def send_str(self,var:str,contents):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
             s.sendall(f"{var}={contents}".encode())
             return s.recv(1024)
-    def send_int(self,var,contents:int):
+    def send_int(self,var:str,contents:int):
         y = json.dumps(contents)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
             s.sendall(f"{var}={y}".encode())
             return s.recv(1024)
-    def send_bool(self,var,contents:bool):
+    def send_bool(self,var:str,contents:bool):
+        y = json.dumps(contents)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((self.host, self.port))
+            s.sendall(f"{var}={y}".encode())
+            return s.recv(1024)
+    def send_dict(self,var:str,contents:dict):
+        y = json.dumps(contents)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((self.host, self.port))
+            s.sendall(f"{var}={y}".encode())
+            return s.recv(1024)
+    def send_list(self,var:str,contents:list):
         y = json.dumps(contents)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
@@ -37,26 +49,39 @@ class client(object):
             s.connect((self.host, self.port))
             s.sendall(f"{var}={y}".encode())
             return s.recv(1024)
-    def recieve_str(self,var):
+    def recieve_str(self,var:str):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return s.recv(1024)
-    def recieve_int(self,var):
+    def recieve_int(self,var:str):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return int(s.recv(1024).decode()[0:-1])
-    def recieve_bool(self,var):
+    def recieve_bool(self,var:str):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             new_bool=s.recv(1024).decode()
             return ("true"in new_bool.lower())
-    def receive_obj(self,var,new_var:object):
+    def recieve_dict(self,var:str):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+            s.connect((self.host, self.port)) 
+            s.sendall(f"{var}=recieve".encode())
+            new_dict=s.recv(1024).decode()
+            new_dict=ast.literal_eval(new_dict[0:-1])
+            
+            return new_dict
+    def recieve_list(self,var:str):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+            s.connect((self.host, self.port)) 
+            s.sendall(f"{var}=recieve".encode())
+            return json.loads(s.recv(1024).decode()[0:-1])
+    def receive_obj(self,var:str,new_var:object):
         def alter__init__(self,new_dict:dict):
              for key, value in new_dict.items():
-
+            
                 setattr(self, key, value) 
         funcType = types.MethodType
         new_var.__init__=funcType(alter__init__,new_var)
@@ -74,6 +99,6 @@ class client(object):
             return s.recv(1024)
 d=client("10.1.40.194",13455 )
 
-d.send_bool("need",True)
-z=d.recieve_bool("need")
+d.send_list("me",["dre","re",2,3,4,5])
+z=d.recieve_list("me")
 print(z)
