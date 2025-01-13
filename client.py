@@ -1,4 +1,6 @@
 import socket
+import json
+import os
 #type will be stored in the future so we can transmute integers and booleans and lists
 # this will happen when client class is made
 #what is below is a send and recieve function
@@ -19,6 +21,19 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return s.recv(1024)
+    def comunicate(self,content:str):
+         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+            s.connect((self.host, self.port)) 
+            s.sendall(content.encode())
+            return s.recv(1024)
 d=client("192.168.12.195",13455 )
-d.send("player","with trust i am you to say\n hello new world")
-print(f"Received {d.recieve("player")!r}")
+me =str(3222222)
+# d.send("player",me)
+# print(f"Received {d.recieve("player")!r}")
+# me=(d.recieve("player").decode())
+# print(me)
+while True:
+    ne=input("message\n")
+    f=d.comunicate(ne)
+    os.system('cls')
+    print(f"host {d!r}")

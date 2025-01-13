@@ -1,4 +1,6 @@
 import socket
+import json
+import os
 class Host(object):
     def __init__(self,size:int,port:int):
             self.port=port
@@ -6,6 +8,7 @@ class Host(object):
             self.ip_address = socket.gethostbyname(self.hostname)            
             self.data={}
             self.var=[]
+            print(self.ip_address)
     def get_person(self):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))
@@ -54,9 +57,24 @@ class Host(object):
                             self.data[var]= new_data.encode()
                             self.send(b'recieved',conn)
                         return data,addr
+    def comunicate(self):
+         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((self.ip_address, self.port))
+                s.listen()
+                conn, addr = s.accept()
+                with conn:
+                    while True:
+                        data = conn.recv(1024)
+                        if not data:
+                            break
+                        print(f"{data!r}")
+                        l=input("respond")
+                        self.send(l.encode(),conn)
+                        os.system('cls')
     def send(self,data:bytes,conn):
         conn.sendall(data)
 
 h=Host(2,13455)
-h.get_person()
+while True:
+     h.get_person()
 h.get_person()
