@@ -26,7 +26,7 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(content.encode())
             return s.recv(1024)
-d=client("192.168.12.195",13455 )
+d=client("10.1.40.194",13455 )
 me =str(3222222)
 # d.send("player",me)
 # print(f"Received {d.recieve("player")!r}")

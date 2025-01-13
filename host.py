@@ -76,5 +76,5 @@ class Host(object):
 
 h=Host(2,13455)
 while True:
-     h.get_person()
+     h.comunicate()
 h.get_person()
