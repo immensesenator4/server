@@ -25,6 +25,12 @@ class client(object):
             s.connect((self.host, self.port))
             s.sendall(f"{var}={y}".encode())
             return s.recv(1024)
+    def send_bool(self,var,contents:bool):
+        y = json.dumps(contents)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((self.host, self.port))
+            s.sendall(f"{var}={y}".encode())
+            return s.recv(1024)
     def send_obj(self,var:str,contents:object):
         y = json.dumps(contents.__dict__)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -41,6 +47,12 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return int(s.recv(1024).decode()[0:-1])
+    def recieve_bool(self,var):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+            s.connect((self.host, self.port)) 
+            s.sendall(f"{var}=recieve".encode())
+            new_bool=s.recv(1024).decode()
+            return ("true"in new_bool.lower())
     def receive_obj(self,var,new_var:object):
         def alter__init__(self,new_dict:dict):
              for key, value in new_dict.items():
@@ -62,6 +74,6 @@ class client(object):
             return s.recv(1024)
 d=client("10.1.40.194",13455 )
 
-d.send_int("need",37787)
-z=d.recieve_int("need")
+d.send_bool("need",True)
+z=d.recieve_bool("need")
 print(z)
