@@ -1,6 +1,7 @@
 import socket
 import json
 import os
+import ast
 class Host(object):
     def __init__(self,size:int,port:int):
             self.port=port
@@ -75,6 +76,6 @@ class Host(object):
         conn.sendall(data)
 
 h=Host(2,13455)
+
 while True:
-     h.comunicate()
-h.get_person()
+    h.get_person()
