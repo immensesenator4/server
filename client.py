@@ -19,6 +19,12 @@ class client(object):
             s.connect((self.host, self.port))
             s.sendall(f"{var}={contents}".encode())
             return s.recv(1024)
+    def send_int(self,var,contents:int):
+        y = json.dumps(contents)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((self.host, self.port))
+            s.sendall(f"{var}={y}".encode())
+            return s.recv(1024)
     def send_obj(self,var:str,contents:object):
         y = json.dumps(contents.__dict__)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -30,6 +36,11 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return s.recv(1024)
+    def recieve_int(self,var):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+            s.connect((self.host, self.port)) 
+            s.sendall(f"{var}=recieve".encode())
+            return int(s.recv(1024).decode()[0:-1])
     def receive_obj(self,var,new_var:object):
         def alter__init__(self,new_dict:dict):
              for key, value in new_dict.items():
@@ -51,7 +62,6 @@ class client(object):
             return s.recv(1024)
 d=client("10.1.40.194",13455 )
 
-# d.send_obj("cli",d)
-# z=client("any",3455)
-z=d.receive_obj("cli",client)
-print(z.port)
+d.send_int("need",37787)
+z=d.recieve_int("need")
+print(z)
