@@ -11,9 +11,8 @@ import types
 HOST =  "192.168.12.195" 
 PORT = 13455 
 class client(object):
-    def __init__(self,host,port):
-        self.host=host
-        self.port = port
+    def __init__(self):
+        self.host,self.port= self.find_servers(end_port=99)
     def send_str(self,var:str,contents):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
@@ -97,8 +96,38 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(content.encode())
             return s.recv(1024)
-d=client("10.1.40.194",13455 )
+    def scan_port(self,ip, port):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(0.000000000000000000000000001)  # Timeout after 1 second
+                s.connect((ip, port))
+            return True
+        except (socket.timeout, ConnectionRefusedError):
+            return False
 
+    def find_servers(self, start_port=1, end_port=9999):
+        net_ip= self.simplify_ip()
+        for port in range(start_port, end_port + 1):
+            for i in range(1, 255):
+                ip = f"{net_ip}.{i}"
+                if self.scan_port(ip, port):
+                    print(f"Server found at {ip}:{port}")
+                    return ip,port
+    def simplify_ip(self):
+        ip=""
+        net_ip=""
+        count=0
+        for char in socket.gethostbyname(socket.gethostname()):
+            if char==".":
+                count+=1
+                net_ip=ip
+            if count==3:
+                return net_ip
+            else:
+                ip+=char
+            
+
+d=client()
 d.send_list("me",["dre","re",2,3,4,5])
 z=d.recieve_list("me")
 print(z)
