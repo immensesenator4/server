@@ -96,7 +96,8 @@ class client(object):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(0.00000000001)  # Timeout after 1 second
                 s.connect((ip, port))
-            return True
+                s.send("hi".encode())
+                return "available" in s.recv(1024).decode()
         except (socket.timeout, ConnectionRefusedError):
             return False
     def find_servers(self,start=1,end=99999,set_port=0):
