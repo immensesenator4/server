@@ -57,7 +57,7 @@ class Host(object):
                                 else:
                                     self.send(b'N/a',conn)
                             elif "hi"in f"{data!r}":
-                                self.send("available",conn)
+                                self.send("available".encode(),conn)
                             else:
                                 var=""
                                 count=0
