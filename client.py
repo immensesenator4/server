@@ -131,12 +131,14 @@ class client(object):
 
 d=client(port=13455)
 while True:
-    os.system("cls")
-    if input("what do you want to do : \\send\ or /recieve/ : ")=="send":
-        var=input("whats the name of the var : ")
-        contents = input("what is the message : ")
-        d.send_str(var,contents)
-    else:
-      var=input("whats the name of the var : ")
-      print(d.recieve_str(var))  
-    input("press \\any\ button to /continue/\n")
+    while d.scan_port(d.host,d.port):
+        os.system("cls")
+        if input("what do you want to do : \\send\ or /recieve/ : ")=="send":
+            var=input("whats the name of the var : ")
+            contents = input("what is the message : ")
+            d.send_str(var,contents)
+        else:
+            var=input("whats the name of the var : ")
+            print(d.recieve_str(var))  
+        input("press \\any\ button to /continue/\n")
+    d.host = d.find_servers(set_port=d.port)[0]
