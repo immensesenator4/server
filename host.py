@@ -17,9 +17,10 @@ class Host(object):
                 s.bind((self.ip_address, self.port))
                 s.listen()
                 conn, addr = s.accept()
-                if addr not in self.adresses and len(self.adresses)<=self.size:
-                     self.adresses.append(addr)
-                if addr in self.adresses:
+                print(addr[0])
+                if addr[0] not in self.adresses and len(self.adresses)<=self.size:
+                     self.adresses.append(addr[0])
+                if addr[0] in self.adresses:
                     with conn:
                         while True:
                             data = conn.recv(1024)
@@ -82,7 +83,7 @@ class Host(object):
     def send(self,data:bytes,conn):
         conn.sendall(data)
 
-h=Host(2,13455)
+h=Host(4,13455)
 
 while True:
     h.get_person()

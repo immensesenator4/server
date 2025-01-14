@@ -11,8 +11,8 @@ import types
 HOST =  "192.168.12.195" 
 PORT = 13455 
 class client(object):
-    def __init__(self):
-        self.host,self.port= self.find_servers(end_port=99)
+    def __init__(self,port=0):
+        self.host,self.port= self.find_servers(set_port=port)
     def send_str(self,var:str,contents):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
@@ -80,7 +80,6 @@ class client(object):
     def receive_obj(self,var:str,new_var:object):
         def alter__init__(self,new_dict:dict):
              for key, value in new_dict.items():
-            
                 setattr(self, key, value) 
         funcType = types.MethodType
         new_var.__init__=funcType(alter__init__,new_var)
@@ -99,20 +98,26 @@ class client(object):
     def scan_port(self,ip, port):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(0.000000000000000000000000001)  # Timeout after 1 second
+                s.settimeout(0.00000000001)  # Timeout after 1 second
                 s.connect((ip, port))
             return True
         except (socket.timeout, ConnectionRefusedError):
             return False
-
-    def find_servers(self, start_port=1, end_port=9999):
+    def find_servers(self,start=1,end=99999,set_port=0):
         net_ip= self.simplify_ip()
-        for port in range(start_port, end_port + 1):
+        if set_port>0:
             for i in range(1, 255):
                 ip = f"{net_ip}.{i}"
-                if self.scan_port(ip, port):
-                    print(f"Server found at {ip}:{port}")
-                    return ip,port
+                if self.scan_port(ip, set_port):
+                    print(f"Server found at {ip}:{set_port}")
+                    return ip,set_port
+        else:
+            for port in range(start,end):
+                for i in range(1, 255):
+                    ip = f"{net_ip}.{i}"
+                    if self.scan_port(ip, port):
+                        print(f"Server found at {ip}:{port}")
+                        return ip,port
     def simplify_ip(self):
         ip=""
         net_ip=""
@@ -127,7 +132,7 @@ class client(object):
                 ip+=char
             
 
-d=client()
-d.send_list("me",["dre","re",2,3,4,5])
+d=client(port=13455)
+# d.send_list("me",["dre","re",2,3,4,5])
 z=d.recieve_list("me")
 print(z)
