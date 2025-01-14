@@ -101,13 +101,20 @@ class client(object):
         except (socket.timeout, ConnectionRefusedError):
             return False
     def find_servers(self,start=1,end=99999,set_port=0):
-        net_ip= self.simplify_ip()
+        net_ip= self.simplify_ip(socket.gethostbyname(socket.gethostname()))
         if set_port>0:
             for i in range(1, 255):
                 ip = f"{net_ip}.{i}"
                 if self.scan_port(ip, set_port):
                     print(f"Server found at {ip}:{set_port}")
                     return ip,set_port
+            net_ip=self.simplify_ip(net_ip)
+            for x in range(1,255):
+                for i in range(1, 255):
+                    ip = f"{net_ip}.{x}.{i}"
+                    if self.scan_port(ip, set_port):
+                        print(f"Server found at {ip}:{set_port}")
+                        return ip,set_port
         else:
             for port in range(start,end):
                 for i in range(1, 255):
@@ -116,11 +123,11 @@ class client(object):
                         print(f"Server found at {ip}:{port}")
                         return ip,port
         return "m","n"
-    def simplify_ip(self):
+    def simplify_ip(self,ip:str):
         ip=""
         net_ip=""
         count=0
-        for char in socket.gethostbyname(socket.gethostname()):
+        for char in ip:
             if char==".":
                 count+=1
                 net_ip=ip
