@@ -97,7 +97,7 @@ class client(object):
                 s.settimeout(0.00000000001)  # Timeout after 1 second
                 s.connect((ip, port))
                 s.send("hi".encode())
-                return "available" in s.recv(1024).decode()
+                return ("server not found" not in s.recv(1024).decode())
         except (socket.timeout, ConnectionRefusedError):
             return False
     def find_servers(self,start=1,end=99999,set_port=0):
@@ -115,6 +115,7 @@ class client(object):
                     if self.scan_port(ip, port):
                         print(f"Server found at {ip}:{port}")
                         return ip,port
+        return "m","n"
     def simplify_ip(self):
         ip=""
         net_ip=""
@@ -123,11 +124,9 @@ class client(object):
             if char==".":
                 count+=1
                 net_ip=ip
-            if count==3:
-                return net_ip
-            else:
-                ip+=char
             
+            ip+=char
+        return net_ip
 
 d=client(port=13455)
 while True:
