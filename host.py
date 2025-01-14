@@ -9,57 +9,64 @@ class Host(object):
             self.ip_address = socket.gethostbyname(self.hostname)            
             self.data={}
             self.var=[]
+            self.size=size
+            self.adresses=[]
             print(self.ip_address)
     def get_person(self):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))
                 s.listen()
                 conn, addr = s.accept()
-                with conn:
-                    while True:
-                        data = conn.recv(1024)
-                        if not data:
-                            break
-                        if ("recieve" in f"{data!r}" ):
-                            var=""
-                            count=0
-                            for i in f"{data!r}":
-                                if count==0:
-                                     pass
-                                elif i == "=":
-                                     break
+                if addr not in self.adresses and len(self.adresses)<=self.size:
+                     self.adresses.append(addr)
+                if addr in self.adresses:
+                    with conn:
+                        while True:
+                            data = conn.recv(1024)
+                            if not data:
+                                break
+                            if ("recieve" in f"{data!r}" ):
+                                var=""
+                                count=0
+                                for i in f"{data!r}":
+                                    if count==0:
+                                        pass
+                                    elif i == "=":
+                                        break
+                                    else:
+                                        var+=i
+                                    count+=1
+                                
+                                    
+                                if var in self.var:
+                                    self.send(self.data[var],conn)
                                 else:
-                                     var+=i
-                                count+=1
-                            
-                                 
-                            if var in self.var:
-                                self.send(self.data[var],conn)
+                                    self.send(b'N/a',conn)
                             else:
-                                 self.send(b'N/a',conn)
-                        else:
-                            var=""
-                            count=0
-                            for i in f"{data!r}":
-                                if count==0:
-                                     pass
-                                elif i == "=":
-                                     break
-                                else:
-                                     var+=i
-                                count+=1
-                            self.var.append(var)
-                            count = len(var)+1
-                            new_data=""
-                            for char in f"{data!r}":
-                                 if count<0:
-                                      new_data+=char
-                                 count-=1
-                            self.data[var]= new_data.encode()
-                            self.send(b'recieved',conn)
-                        return data,addr
+                                var=""
+                                count=0
+                                for i in f"{data!r}":
+                                    if count==0:
+                                        pass
+                                    elif i == "=":
+                                        break
+                                    else:
+                                        var+=i
+                                    count+=1
+                                self.var.append(var)
+                                count = len(var)+1
+                                new_data=""
+                                for char in f"{data!r}":
+                                    if count<0:
+                                        new_data+=char
+                                    count-=1
+                                self.data[var]= new_data.encode()
+                                self.send(b'recieved',conn)
+                            return data,addr
+                else:
+                    self.send(b"server not found",conn)
     def comunicate(self):
-         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))
                 s.listen()
                 conn, addr = s.accept()
