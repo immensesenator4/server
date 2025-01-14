@@ -11,16 +11,29 @@ class Host(object):
             self.var=[]
             self.size=size
             self.adresses=[]
-            print(self.ip_address)
+            self.record=[]
     def get_person(self):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))
                 s.listen()
                 conn, addr = s.accept()
-                print(addr[0])
-                if addr[0] not in self.adresses and len(self.adresses)<=self.size:
+
+                if addr[0] not in self.adresses and len(self.adresses)+1<=self.size:
                      self.adresses.append(addr[0])
+                     self.record.append(0)
                 if addr[0] in self.adresses:
+                    
+                    for i in range(0,len(self.adresses)):
+                        self.record[i]+=1
+                        if addr[0]== self.adresses[i]:
+                            self.record[i]=0
+                        elif self.record[i]==10:
+                            self.record.pop(i)
+                            self.adresses.pop(i)
+                            break
+                    os.system('cls')
+                    for adr in self.adresses:
+                        print(f"{adr} is conected to network")
                     with conn:
                         while True:
                             data = conn.recv(1024)
@@ -83,7 +96,7 @@ class Host(object):
     def send(self,data:bytes,conn):
         conn.sendall(data)
 
-h=Host(4,13455)
+h=Host(2,13455)
 
 while True:
     h.get_person()

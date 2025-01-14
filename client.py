@@ -3,11 +3,7 @@ import json
 import os
 import ast
 import types
-
-#type will be stored in the future so we can transmute integers and booleans and lists
-# this will happen when client class is made
 #what is below is a send and recieve function
-#this will continue with a self.host and self. ip adress which i would have to make somethingto search the port i think
 HOST =  "192.168.12.195" 
 PORT = 13455 
 class client(object):
@@ -133,6 +129,13 @@ class client(object):
             
 
 d=client(port=13455)
-# d.send_list("me",["dre","re",2,3,4,5])
-z=d.recieve_list("me")
-print(z)
+while True:
+    os.system("cls")
+    if input("what do you want to do : \\send\ or /recieve/ : ")=="send":
+        var=input("whats the name of the var : ")
+        contents = input("what is the message : ")
+        d.send_str(var,contents)
+    else:
+      var=input("whats the name of the var : ")
+      print(d.recieve_str(var))  
+    input("press \\any\ button to /continue/\n")
