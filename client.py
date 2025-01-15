@@ -16,6 +16,17 @@ class client(object):
             s.connect((self.host, self.port))
             s.sendall(f"{var}={contents}".encode())
             return s.recv(1024)
+    def send_file(self,File:str):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                f = open(f'{File}','wb')
+                s.connect((self.host, self.port))
+                l = f.read(1024)
+                s.send(f"file {File}".encode())
+                while (l):
+                    s.send(l)
+                    l = f.read(1024)
+                f.close()
+                
     def send_int(self,var:str,contents:int):
         y = json.dumps(contents)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -51,7 +62,16 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return s.recv(1024)
-    def recieve_int(self,var:str):
+    def recieve_file(self,File:str):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:  
+            s.send(f"Recieve File={File}")    
+            f = open(File,'wb')
+            l = s.recv(1024)
+            while (l):
+                f.write(l)
+                l = s.recv(1024)
+            f.close()
+    def recieve_int(self,var:str):    
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())

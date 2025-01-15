@@ -22,6 +22,7 @@ class Host(object):
                 if addr[0] not in self.adresses and len(self.adresses)+1<=self.size:
                      self.adresses.append(addr[0])
                      self.record.append(0)
+                
                 if addr[0] in self.adresses:
                     
                     for i in range(0,len(self.adresses)):
@@ -41,22 +42,54 @@ class Host(object):
                             if not data:
                                 break
                             if ("recieve" in f"{data!r}" ):
-                                var=""
-                                count=0
-                                for i in f"{data!r}":
-                                    if count==0:
-                                        pass
-                                    elif i == "=":
-                                        break
-                                    else:
-                                        var+=i
-                                    count+=1
-                                
-                                    
-                                if var in self.var:
-                                    self.send(self.data[var],conn)
+                                if "file" in f"{data!r}":
+                                        con=False
+                                        file=""
+                                        for char in f"data!r":
+                                            
+                                            if con:
+                                                file+=char
+                                            if char=="=":
+                                                con=True
+                                        f = open(file,'rb')
+                                        s.connect((self.host, self.port))
+                                        l = f.read(1024)
+                                        while (l):
+                                            s.send(l)
+                                            l = f.read(1024)
+                                        f.close()
                                 else:
-                                    self.send(b'N/a',conn)
+                                    var=""
+                                    count=0
+                                    for i in f"{data!r}":
+                                        if count==0:
+                                            pass
+                                        elif i == "=":
+                                            break
+                                        else:
+                                            var+=i
+                                        count+=1
+                                    
+                                        
+                                    if var in self.var:
+                                        self.send(self.data[var],conn)
+                                    else:
+                                        self.send(b'N/a',conn)
+                            elif "file" in f"{data!r}":
+                                    con=False
+                                    file=""
+                                    for char in f"{data!r}":
+                                        
+                                        if con:
+                                            file+=char
+                                        if char==" ":
+                                            con=True
+                                    f = open(file,'wb')
+                                    l = conn.recv(1024)
+                                    while (l):
+                                        f.write(l)
+                                        l = conn.recv(1024)
+                                    f.close()
                             elif "hi"in f"{data!r}":
                                 self.send("available".encode(),conn)
                             else:
