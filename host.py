@@ -6,7 +6,8 @@ class Host(object):
     def __init__(self,size:int,port:int):
             self.port=port
             self.hostname = socket.gethostname()
-            self.ip_address = socket.gethostbyname(self.hostname)            
+            # self.ip_address = socket.gethostbyname(self.hostname)     
+            self.ip_address='0.0.0.0'       
             self.data={}
             self.var=[]
             self.size=size
