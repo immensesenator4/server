@@ -1,4 +1,4 @@
-import socket
+import socket, select
 import json
 import os
 import ast
@@ -8,9 +8,8 @@ HOST =  "192.168.12.195"
 PORT = 13455 
 class client(object):
     def __init__(self,port=0):
-        # self.host,self.port= self.find_servers(set_port=port)
-        self.port=port
-        self.host="127.0.0.1"
+        self.host,self.port= self.find_servers(set_port=port)
+
     def send_str(self,var:str,contents):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
@@ -21,7 +20,7 @@ class client(object):
                 f = open(f'{File}','wb')
                 s.connect((self.host, self.port))
                 l = f.read(1024)
-                s.send(f"file {File}".encode())
+                s.send(f"send file {File}".encode())
                 while (l):
                     s.send(l)
                     l = f.read(1024)

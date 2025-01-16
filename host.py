@@ -2,17 +2,18 @@ import socket
 import json
 import os
 import ast
+
 class Host(object):
     def __init__(self,size:int,port:int):
             self.port=port
             self.hostname = socket.gethostname()
-            # self.ip_address = socket.gethostbyname(self.hostname)     
-            self.ip_address='0.0.0.0'       
+            self.ip_address = socket.gethostbyname(self.hostname)     
             self.data={}
             self.var=[]
             self.size=size
             self.adresses=[]
             self.record=[]
+            
     def get_person(self):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))
@@ -75,15 +76,18 @@ class Host(object):
                                         self.send(self.data[var],conn)
                                     else:
                                         self.send(b'N/a',conn)
-                            elif "file" in f"{data!r}":
+                            elif "send file" in f"{data!r}":
                                     con=False
                                     file=""
+                                    count=0
                                     for char in f"{data!r}":
                                         
                                         if con:
                                             file+=char
                                         if char==" ":
-                                            con=True
+                                            count+=1
+                                            if count ==2:
+                                                con=True
                                     f = open(file,'wb')
                                     l = conn.recv(1024)
                                     while (l):
@@ -132,7 +136,7 @@ class Host(object):
     def send(self,data:bytes,conn):
         conn.sendall(data)
 
-h=Host(2,13455)
+h=Host(4,13455)
 
 while True:
     h.get_person()
