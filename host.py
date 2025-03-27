@@ -29,8 +29,7 @@ class Socket(object):
 
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-        # Bind the socket to a specific port
-        server_address = ('', self.port)  # Listen on all interfaces on port 12345
+        server_address = ('', self.port) 
         sock.bind(server_address)
 
         print("UDP server is up and listening for broadcasts...")
@@ -48,17 +47,14 @@ class Socket(object):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-        # Allow the socket to broadcast
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-        # Broadcast message
         message = f"{self.reason}".encode()
 
         while True:
-            # Send the message to the broadcast address
             sock.sendto(message, ('<broadcast>', self.port))
             print("Broadcast message sent!")
-            time.sleep(2)  # Wait for 2 seconds before send
+            time.sleep(2)  
 
 
     def simplify_name_func(self,obj:str):
