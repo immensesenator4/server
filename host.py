@@ -152,9 +152,9 @@ class Socket(object):
         self.sock.close()
     def send(self,data:str):
         self.sock.send(data.encode())
-    def host(self):
+    def host(self,hostFile:str=f"\\Udphost.py"):
         print(os.getcwd())
-        os.system(f"start cmd.exe /c python {os.getcwd()}\\Udphost.py")
+        os.system(f"start cmd.exe /c python {os.getcwd()}{hostFile}")
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         h.sock.bind((self.ip,self.port))
 
