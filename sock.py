@@ -76,7 +76,7 @@ class Socket(object):
         return f
     def ServerClose(self):
         os.system("")
-        os.system(f"@echo off && cmd TASKKILL /F /IM cmd.exe /T ")
+        os.system(f"@echo off & cmd TASKKILL /F /IM cmd.exe /T ")
         self.sock.close()
     def simplify_name_func(self,obj:str):
         shortened_name=''
