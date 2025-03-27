@@ -1,6 +1,7 @@
 from sock import Socket
 import socket
 import json
+import os
 try:
     sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(("127.0.0.1",2))
@@ -13,6 +14,10 @@ except Exception as e:
 
 newUdp = Socket("testForPython",int(s))
 print("hi")
-
-newUdp.listen()
+try:
+    newUdp.listen()
+except Exception as e:
+    print(e)
+while True:
+    n=1
 

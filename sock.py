@@ -45,16 +45,14 @@ class Socket(object):
         
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
+        n=True
         message = f"{self.reason}".encode()
-        while True:
+        while n:
             sock.sendto(message, ('<broadcast>', self.port))
            
                 
             time.sleep(2)  
-        s.close()
         sock.close()
 
     def sendFile(self,File:str):
@@ -77,8 +75,7 @@ class Socket(object):
                 break
         return f
     def ServerClose(self):
-        self.sock.sendto("shutdown",(("127.0.0.1",self.port)))
-        self.sock.shutdown(2)
+        os.system(f"TASKKILL /F /IM cmd.exe /T ")
     def simplify_name_func(self,obj:str):
         shortened_name=''
         for i in obj:
