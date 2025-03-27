@@ -1,142 +1,174 @@
+import random as r
 import socket
 import json
 import os
 import ast
+import time
+from typing import overload
+class Socket(object):
+    
+    
+    def __init__(self,reason:str="None",port:int=0,ip:str=socket.gethostbyname(socket.gethostname())):
+        abcs=r"qwertuiopasdfghklzxcvbnm12345890[]\|';/.,!@#$%^&*()_-=`~"
+        self.callId=""
+        self.sock = None
+        self.ip=ip
+        self.port =port
+        for i in range(0,r.randint(7,38)):
+            e=r.randint(0,len(abcs)-1)
+            self.callId+=abcs[e]
+           
+        self.reason=reason
+    def recieve(self):
+        return self.sock.recv(1024).decode()
+    def uncompress(self,data):
+        return json.loads(data)
+    def getServers(self):
+        ips=[]
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-class Host(object):
-    def __init__(self,size:int,port:int):
-            self.port=port
-            self.hostname = socket.gethostname()
-            self.ip_address = socket.gethostbyname(self.hostname)     
-            self.data={}
-            self.var=[]
-            self.size=size
-            self.adresses=[]
-            self.record=[]
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+        # Bind the socket to a specific port
+        server_address = ('', self.port)  # Listen on all interfaces on port 12345
+        sock.bind(server_address)
+
+        print("UDP server is up and listening for broadcasts...")
+
+        while len(ips)<1:
+            data, address = sock.recvfrom(1024)  # Buffer size is 1024 bytes
+            print(f"Received message: {data.decode()} from {address}")
+            if self.reason == data.decode()and address[0] not in ips:
+                ips.append(address[0])
+        sock.close()
+        return ips
+
+    def listen(self):
+        
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        # Allow the socket to broadcast
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+        # Broadcast message
+        message = f"{self.reason}".encode()
+
+        while True:
+            # Send the message to the broadcast address
+            sock.sendto(message, ('<broadcast>', self.port))
+            print("Broadcast message sent!")
+            time.sleep(2)  # Wait for 2 seconds before send
+
+
+    def simplify_name_func(self,obj:str):
+        shortened_name=''
+        for i in obj:
+            if i ==' ':
+                break
+            elif "<":
+                pass
+            else:
+                shortened_name+=i
+        return shortened_name
+    def simplify(self,obj:dict|list, is_dict:bool=True)->dict|list:
+        excludables=(int,str,float,dict,list,tuple,bool,bytes)
+        
+        if is_dict:
+            ran=False
+            deep_coppy={}
             
-    def get_person(self):
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((self.ip_address, self.port))
-                s.listen()
-                conn, addr = s.accept()
 
-                if addr[0] not in self.adresses and len(self.adresses)+1<=self.size:
-                     self.adresses.append(addr[0])
-                     self.record.append(0)
-                
-                if addr[0] in self.adresses:
-                    
-                    for i in range(0,len(self.adresses)):
-                        self.record[i]+=1
-                        if addr[0]== self.adresses[i]:
-                            self.record[i]=0
-                        elif self.record[i]==10:
-                            self.record.pop(i)
-                            self.adresses.pop(i)
-                            break
-                    os.system('cls')
-                    for adr in self.adresses:
-                        print(f"{adr} is conected to network")
-                    with conn:
-                        while True:
-                            data = conn.recv(1024)
-                            if not data:
-                                break
-                            if ("recieve" in f"{data!r}" ):
-                                if "file" in f"{data!r}":
-                                        con=False
-                                        file=""
-                                        for char in f"data!r":
-                                            
-                                            if con:
-                                                file+=char
-                                            if char=="=":
-                                                con=True
-                                        f = open(file,'rb')
-                                        s.connect((self.host, self.port))
-                                        l = f.read(1024)
-                                        while (l):
-                                            s.send(l)
-                                            l = f.read(1024)
-                                        f.close()
-                                else:
-                                    var=""
-                                    count=0
-                                    for i in f"{data!r}":
-                                        if count==0:
-                                            pass
-                                        elif i == "=":
-                                            break
-                                        else:
-                                            var+=i
-                                        count+=1
-                                    
-                                        
-                                    if var in self.var:
-                                        self.send(self.data[var],conn)
-                                    else:
-                                        self.send(b'N/a',conn)
-                            elif "send file" in f"{data!r}":
-                                    con=False
-                                    file=""
-                                    count=0
-                                    for char in f"{data!r}":
-                                        
-                                        if con:
-                                            file+=char
-                                        if char==" ":
-                                            count+=1
-                                            if count ==2:
-                                                con=True
-                                    f = open(file,'wb')
-                                    l = conn.recv(1024)
-                                    while (l):
-                                        f.write(l)
-                                        l = conn.recv(1024)
-                                    f.close()
-                            elif "hi"in f"{data!r}":
-                                self.send("available".encode(),conn)
-                            else:
-                                var=""
-                                count=0
-                                for i in f"{data!r}":
-                                    if count==0:
-                                        pass
-                                    elif i == "=":
-                                        break
-                                    else:
-                                        var+=i
-                                    count+=1
-                                self.var.append(var)
-                                count = len(var)+1
-                                new_data=""
-                                for char in f"{data!r}":
-                                    if count<0:
-                                        new_data+=char
-                                    count-=1
-                                self.data[var]= new_data.encode()
-                                self.send(b'recieved',conn)
-                            return data,addr
+            for key,var in obj.items():
+                ran=True
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                        z= self.simplify(var)
+                    else:
+                        z= var
                 else:
-                    self.send(b"server not found",conn)
-    def comunicate(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind((self.ip_address, self.port))
-                s.listen()
-                conn, addr = s.accept()
-                with conn:
-                    while True:
-                        data = conn.recv(1024)
-                        if not data:
-                            break
-                        print(f"{data!r}")
-                        l=input("respond")
-                        self.send(l.encode(),conn)
-                        os.system('cls')
-    def send(self,data:bytes,conn):
-        conn.sendall(data)
+                    try:
+                        obj_dict=var.__dict__
+                        obj_dict['object']=self.simplify_name_func(str(obj))
+                        z= self.simplify(obj_dict)
+                    except:
+                        z= key
+                deep_coppy[key]=z
+            
+            return deep_coppy
+            
+        elif isinstance(obj,list):
+            deep_coppy=[]
+            for i in range(0,len(obj)):
+                var=obj[i]
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                    
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+                    else:
+                        z= var
+                else:
+                    try:
+                        obj_dict=var.__dict__
+                        obj_dict['object']= self.simplify_name_func(str(var))
+                        z= self.simplify(obj_dict)
+                    except:
+                        z= obj[i]
+                deep_coppy.append(z)
+            
+        
+        return deep_coppy
+    def compress(self,data):
+        return json.dumps(data)
+    def compressObj(self,obj:object,):
+        new=obj.__dict__.copy()
+        z:dict=self.simplify(new)
+        
+        y = json.dumps(z)
+        return y
+    def connectServer(self,ip:str,port:int):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((ip,port))
+    def Disconect(self):
+        self.sock.close()
+    def send(self,data:str):
+        self.sock.send(data.encode())
+    def host(self):
+        print(os.getcwd())
+        os.system(f"start cmd.exe /c python {os.getcwd()}\\Udphost.py")
+        self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        h.sock.bind((self.ip,self.port))
 
-h=Host(4,13455)
-
-while True:
-    h.get_person()
+if __name__ == "__main__":
+    h=Socket("test",22)
+    # print("why")
+    h.host()
+    s=None
+    while not s:
+        h.sock.listen()
+        conn,addr = h.sock.accept()
+        try:
+            data =conn.recv(1040)
+            print("from "+str(addr) + " recieved " +data.decode())
+            s=data
+        except Exception as e:
+            print(e)

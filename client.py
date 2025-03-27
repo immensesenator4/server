@@ -3,13 +3,20 @@ import json
 import os
 import ast
 import types
+from typing import override
 #what is below is a send and recieve function
 HOST =  "192.168.12.195" 
 PORT = 13455 
 class client(object):
+    @override
     def __init__(self,port=0):
         self.host,self.port= self.find_servers(set_port=port)
-
+    
+    def __init__(self,o,v,port=0):
+        self.host=None
+        self.port=port
+    def set_servers(self,port=0):
+        self.host,self.port= self.find_servers(set_port=port)
     def send_str(self,var:str,contents):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
@@ -155,17 +162,17 @@ class client(object):
             
             new_ip+=char
         return net_ip
-
-d=client(port=13455)
-while True:
-    while d.scan_port(d.host,d.port):
-        os.system("cls")
-        if input("what do you want to do : \\send\ or /recieve/ : ")=="send":
-            var=input("whats the name of the var : ")
-            contents = input("what is the message : ")
-            d.send_str(var,contents)
-        else:
-            var=input("whats the name of the var : ")
-            print(d.recieve_str(var))  
-        input("press \\any\ button to /continue/\n")
-    d.host = d.find_servers(set_port=d.port)[0]
+if __name__ == "__main__":
+    d=client(port=13455)
+    while True:
+        while d.scan_port(d.host,d.port):
+            os.system("cls")
+            if input("what do you want to do : \\send\ or /recieve/ : ")=="send":
+                var=input("whats the name of the var : ")
+                contents = input("what is the message : ")
+                d.send_str(var,contents)
+            else:
+                var=input("whats the name of the var : ")
+                print(d.recieve_str(var))  
+            input("press \\any\ button to /continue/\n")
+        d.host = d.find_servers(set_port=d.port)[0]
