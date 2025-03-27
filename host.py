@@ -32,10 +32,9 @@ class Socket(object):
         server_address = ('', self.port) 
         sock.bind(server_address)
 
-        print("UDP server is up and listening for broadcasts...")
 
         while len(ips)<1:
-            data, address = sock.recvfrom(1024)  # Buffer size is 1024 bytes
+            data, address = sock.recvfrom(1024)  
             print(f"Received message: {data.decode()} from {address}")
             if self.reason == data.decode()and address[0] not in ips:
                 ips.append(address[0])
