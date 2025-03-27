@@ -55,6 +55,25 @@ class Socket(object):
             print("Broadcast message sent!")
             time.sleep(2)  
 
+    def sendFile(self,File:str):
+        f=open(File,"rb")
+        data=f.read(1024)
+        while data:
+            self.sock.send(data)
+            data=f.read(1024)
+        self.sock.send("$$".encode())
+        f.close()
+    def recieveFile(self,conn:socket.socket):
+        f=""
+        while True:
+            try:
+                data= conn.recv(1024).decode()
+                if "$$" in data:
+                    break
+                f+=data
+            except:
+                break
+        return f
 
     def simplify_name_func(self,obj:str):
         shortened_name=''
@@ -132,6 +151,12 @@ class Socket(object):
             
         
         return deep_coppy
+    def compressFile(self,File:str):
+        fileText=""
+        with open(os.getcwd()+"\\"+File,"r+")as f:
+            fileText=f.read()
+        return self.compress(fileText)
+
     def compress(self,data):
         return json.dumps(data)
     def compressObj(self,obj:object,):
@@ -145,6 +170,7 @@ class Socket(object):
         self.sock.connect((ip,port))
     def Disconect(self):
         self.sock.close()
+    
     def send(self,data:str):
         self.sock.send(data.encode())
     def host(self,hostFile:str=f"\\Udphost.py"):
@@ -153,7 +179,7 @@ class Socket(object):
         h.sock.bind((self.ip,self.port))
 
 if __name__ == "__main__":
-    h=Socket("test",22)
+    h=Socket("testForPython",22)
     # print("why")
     h.host()
     s=None
@@ -161,8 +187,8 @@ if __name__ == "__main__":
         h.sock.listen()
         conn,addr = h.sock.accept()
         try:
-            data =conn.recv(1040)
-            print("from "+str(addr) + " recieved " +data.decode())
+            data = h.recieveFile(conn)
+            print("from "+str(addr) + " recieved " +data)
             s=data
         except Exception as e:
             print(e)

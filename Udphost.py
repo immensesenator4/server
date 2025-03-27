@@ -1,4 +1,4 @@
-from host import Socket
-newUdp = Socket("test",22)
+from sock import Socket
+newUdp = Socket("testForPython",22)
 print("hi")
 newUdp.listen()
