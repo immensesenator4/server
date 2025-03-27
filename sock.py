@@ -49,11 +49,13 @@ class Socket(object):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         message = f"{self.reason}".encode()
-
         while True:
             sock.sendto(message, ('<broadcast>', self.port))
-            print("Broadcast message sent!")
+           
+                
             time.sleep(2)  
+        s.close()
+        sock.close()
 
     def sendFile(self,File:str):
         f=open(File,"rb")
@@ -74,7 +76,9 @@ class Socket(object):
             except:
                 break
         return f
-
+    def ServerClose(self):
+        self.sock.sendto("shutdown",(("127.0.0.1",self.port)))
+        self.sock.shutdown(2)
     def simplify_name_func(self,obj:str):
         shortened_name=''
         for i in obj:
@@ -175,6 +179,11 @@ class Socket(object):
         self.sock.send(data.encode())
     def host(self,hostFile:str=f"\\Udphost.py"):
         os.system(f"start cmd.exe /c python {os.getcwd()}{hostFile}")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1",2))
+            s.listen()
+            conn, literal= s.accept()
+            conn.sendall(json.dumps(self.port).encode())
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         h.sock.bind((self.ip,self.port))
 
@@ -192,3 +201,4 @@ if __name__ == "__main__":
             s=data
         except Exception as e:
             print(e)
+    h.ServerClose()
