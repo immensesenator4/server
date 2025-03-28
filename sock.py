@@ -135,7 +135,8 @@ class Socket(object):
                 break
         return f
     def ServerClose(self):
-        os.system(f"TASKKILL /F /IM cmd.exe /T ")
+        os.system(f"cmd TASKKILL /F /IM cmd.exe /T ")
+        self.sock.close()
     def simplify_name_func(self,obj:str):
         shortened_name=''
         for i in obj:
