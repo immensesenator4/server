@@ -4,6 +4,7 @@ import json
 import os
 import ast
 import time
+import types
 from typing import overload
 class Socket(object):
     
@@ -19,8 +20,67 @@ class Socket(object):
             self.callId+=abcs[e]
            
         self.reason=reason
-    def recieve(self):
-        return self.sock.recv(1024).decode()
+    def decompress_obj(self,obj,newvar,objects={}):
+        return self.Reasign(obj,newvar,objects)
+    def uncompileobjs(self,obj:dict|list,objects:dict={}):
+        if isinstance(obj,(dict)):
+            for key, value in obj.items():
+                if isinstance(value,(dict)):
+                    if "object" in value.keys():
+                        z=self.Reasign(value,objects[value["object"]],objects)
+                    else:
+                        z=self.uncompileobjs(value,objects)
+
+                elif key == "object":
+                    pass
+                elif isinstance(value,(list)):
+                    z=self.uncompileobjs(value,objects)
+                else:
+                    z=value
+                try:
+                    obj[key]=z
+                except:
+                    pass
+        elif isinstance(obj,(list)):
+            for i in range(0,len(obj)):
+                if isinstance(obj[i],(dict)):
+                    if "object" in obj[i].keys():
+                        z=self.Reasign(obj[i],objects[obj[i]["object"]],objects)
+                    else:
+                        z=self.uncompileobjs(obj[i],objects)
+
+                elif key == "object":
+                    pass
+                elif isinstance(obj[i],(list)):
+                    z=self.uncompileobjs(obj[i],objects)
+                else:
+                    z=obj[i]
+                try:
+                    obj[i]=z
+                except:
+                    pass
+            pass
+        return obj
+    def Reasign(self,obj:dict,newVar:object,objects:dict={}):
+        def alter__init__(self,new_dict:dict,Reasign=self.Reasign,uncompiledobjs=self.uncompileobjs,objects:dict={}):
+             for key, value in new_dict.items():
+                if isinstance(value,(list,dict)):
+                    if isinstance(value,(list)):
+                        z=uncompiledobjs(value,objects)
+                    else:
+                        if "object" in value.keys():
+                            z=Reasign(value,objects[value["object"]],objects)
+                        else:
+                            z=uncompiledobjs(value,objects)
+                    setattr(self,key,z)
+                else:    
+                    setattr(self, key, value) 
+        funcType = types.MethodType
+        newVar.__init__=funcType(alter__init__,newVar)
+        newVar.__init__(obj,objects=objects)
+        return newVar
+    def recieve(self,conn:socket.socket):
+        return self.uncompress(conn.recv(1024).decode())
     def uncompress(self,data):
         return json.loads(data)
     def getServers(self):
@@ -75,7 +135,7 @@ class Socket(object):
                 break
         return f
     def ServerClose(self):
-        os.system(f"cmd TASKKILL /F /IM cmd.exe /T ")
+        os.system(f"TASKKILL /F /IM cmd.exe /T ")
         self.sock.close()
     def simplify_name_func(self,obj:str):
         shortened_name=''
@@ -194,9 +254,11 @@ if __name__ == "__main__":
         h.sock.listen()
         conn,addr = h.sock.accept()
         try:
-            data = h.recieveFile(conn)
-            print("from "+str(addr) + " recieved " +data)
+            data = h.recieve(conn)
+            print("from "+str(addr) + " recieved " +str(data))
             s=data
         except Exception as e:
             print(e)
+    print(h.decompress_obj(data,Socket,{h.simplify_name_func(str(h.sock)):socket.socket,h.simplify_name_func(str(h)):Socket}).__dict__)
+
     h.ServerClose()
