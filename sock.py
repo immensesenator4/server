@@ -80,7 +80,7 @@ class Socket(object):
         newVar.__init__(obj,objects=objects)
         return newVar
     def recieve(self,conn:socket.socket):
-        return self.uncompress(conn.recv(1024).decode())
+        return conn.recv(1024).decode()
     def uncompress(self,data):
         return json.loads(data)
     def getServers(self):
@@ -233,8 +233,11 @@ class Socket(object):
     def Disconect(self):
         self.sock.close()
     
-    def send(self,data:str):
-        self.sock.send(data.encode())
+    def send(self,data:str,conn:socket.socket=None):
+        if conn:
+            conn.sendall(data.encode())
+        else:
+            self.sock.sendall(data.encode())
     def host(self,hostFile:str=f"\\Udphost.py"):
         os.system(f"start cmd.exe /c python {os.getcwd()}{hostFile}")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -243,7 +246,7 @@ class Socket(object):
             conn, literal= s.accept()
             conn.sendall(json.dumps(self.port).encode())
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        h.sock.bind((self.ip,self.port))
+        self.sock.bind((self.ip,self.port))
 
 if __name__ == "__main__":
     h=Socket("testForPython",22)
