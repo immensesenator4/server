@@ -20,8 +20,8 @@ class Socket(object):
             self.callId+=abcs[e]
            
         self.reason=reason
-    def decompress_obj(self,obj:str,newVar:object,objects={}):
-        pass
+    def decompress_obj(self,obj,newvar,objects={}):
+        return self.Reasign(obj,newvar,objects)
     def uncompileobjs(self,obj:dict|list,objects:dict={}):
         if isinstance(obj,(dict)):
             for key, value in obj.items():
@@ -80,7 +80,7 @@ class Socket(object):
         newVar.__init__(obj,objects=objects)
         return newVar
     def recieve(self,conn:socket.socket):
-        return conn.recv(1024).decode()
+        return self.uncompress(conn.recv(1024).decode())
     def uncompress(self,data):
         return json.loads(data)
     def getServers(self):
@@ -135,7 +135,7 @@ class Socket(object):
                 break
         return f
     def ServerClose(self):
-        os.system(f"cmd TASKKILL /F /IM cmd.exe /T ")
+        os.system(f"TASKKILL /F /IM cmd.exe /T ")
         self.sock.close()
     def simplify_name_func(self,obj:str):
         shortened_name=''
@@ -255,8 +255,10 @@ if __name__ == "__main__":
         conn,addr = h.sock.accept()
         try:
             data = h.recieve(conn)
-            print("from "+str(addr) + " recieved " +data)
+            print("from "+str(addr) + " recieved " +str(data))
             s=data
         except Exception as e:
             print(e)
+    print(h.decompress_obj(data,Socket,{h.simplify_name_func(str(h.sock)):socket.socket,h.simplify_name_func(str(h)):Socket}).__dict__)
+
     h.ServerClose()
