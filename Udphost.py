@@ -18,6 +18,3 @@ try:
     newUdp.listen()
 except Exception as e:
     print(e)
-while True:
-    n=1
-
