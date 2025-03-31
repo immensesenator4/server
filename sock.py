@@ -135,7 +135,7 @@ class Socket(object):
                 break
         return f
     def ServerClose(self):
-        os.system(f"TASKKILL /F /IM cmd.exe /T ")
+        os.system(f"taskkill /f /fi \"WINDOWTITLE eq openServer\"")
         self.sock.close()
     def simplify_name_func(self,obj:str):
         shortened_name=''
@@ -245,6 +245,7 @@ class Socket(object):
             s.listen()
             conn, literal= s.accept()
             conn.sendall(json.dumps(self.port).encode())
+            conn.sendall(self.reason.encode())
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.ip,self.port))
 
@@ -262,6 +263,6 @@ if __name__ == "__main__":
             s=data
         except Exception as e:
             print(e)
-    print(h.decompress_obj(data,Socket,{h.simplify_name_func(str(h.sock)):socket.socket,h.simplify_name_func(str(h)):Socket}).__dict__)
+    print(s)
 
     h.ServerClose()
