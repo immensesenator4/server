@@ -137,6 +137,8 @@ class Socket(object):
     def ServerClose(self):
         os.system(f"taskkill /f /fi \"WINDOWTITLE eq openServer\"")
         self.sock.close()
+    def killSchitzofrenia(self):
+        os.system(f"taskkill /f /fi \"WINDOWTITTLE eq echoServer")
     def simplify_name_func(self,obj:str):
         shortened_name=''
         for i in obj:
@@ -238,31 +240,45 @@ class Socket(object):
             conn.sendall(data.encode())
         else:
             self.sock.sendall(data.encode())
-    def host(self,hostFile:str=f"\\Udphost.py"):
-        os.system(f"start cmd.exe /c python {os.getcwd()}{hostFile}")
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(("127.0.0.1",2))
-            s.listen()
-            conn, literal= s.accept()
-            conn.sendall(json.dumps(self.port).encode())
-            conn.sendall(self.reason.encode())
+    def host(self,hostFile:str=f"\\Udphost.py",isEcho = True,echoFile = f"\\echo.py"):
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind((self.ip,self.port))
-
+        if isEcho:
+            os.system(f"start cmd.exe /c python {os.getcwd()}{echoFile}")
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("127.0.0.1",2))
+                s.listen()
+                conn, literal= s.accept()
+                conn.sendall(json.dumps(self.port).encode())
+                conn.sendall(self.reason.encode())
+                conn.close()
+        self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if not isEcho:
+            os.system(f"start cmd.exe /c python {os.getcwd()}{hostFile}")
+        
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("127.0.0.1",2))
+                s.listen()
+                conn, literal= s.accept()
+                conn.sendall(json.dumps(self.port).encode())
+                conn.sendall(self.reason.encode())
+            
 if __name__ == "__main__":
     h=Socket("testForPython",22)
     # print("why")
     h.host()
-    s=None
-    while not s:
-        h.sock.listen()
-        conn,addr = h.sock.accept()
-        try:
-            data = h.recieve(conn)
-            print("from "+str(addr) + " recieved " +str(data))
-            s=data
-        except Exception as e:
-            print(e)
-    print(s)
-
+    input()
+    h.killSchitzofrenia()
     h.ServerClose()
+    # s=None
+    # while not s:
+    #     h.sock.listen()
+    #     conn,addr = h.sock.accept()
+    #     try:
+    #         data = h.recieve(conn)
+    #         print("from "+str(addr) + " recieved " +str(data))
+    #         s=data
+    #     except Exception as e:
+    #         print(e)
+    # print(s)
+
+    # h.ServerClose()
