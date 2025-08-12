@@ -1,7 +1,7 @@
 import os
 from sock import Socket
 import socket
-Info:dict ={}
+Info:dict[str,str] ={"n":"hollan"}
 import json
 import time
 os.system("title echoServer")
@@ -27,16 +27,55 @@ try:
 except Exception as e:
     print(e)
 
+
 while True:
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            
             s.bind((newTCP.ip,newTCP.port))
             s.listen()
             conn, literal= s.accept()
-            n=conn.recv(1024)
-            if n.decode()[0:4] == "send":
-                print(True)
-            print(n.decode())
+
+            with conn:
+                    while True:
+                        data = conn.recv(1024)
+                        if not data:
+                            break
+                        if ("Recieve" in f"{data!r}" ):
+                                isVar=False
+                                var=""
+                                count=0
+                                for i in f"{data!r}":
+                                    if isVar:
+                                        var+=i
+                                    elif i == ":":
+                                        isVar=not isVar
+                                    
+                                var=var.replace("'","")
+                                conn.sendall(Info[var].encode())
+                              
+
+                        else:
+                            var=""
+                            count=0
+                            for i in f"{data!r}":
+                                if count==0:
+                                    pass
+                                elif i == ":":
+                                    break
+                                else:
+                                    var+=i
+                                count+=1
+                            
+                            count = len(var)+1
+                            new_data=""
+                            for char in f"{data!r}":
+                                if count<0:
+                                    new_data+=char
+                                count-=1
+                            Info[var]= new_data.encode()
+                        print(var)
+            
             s.close()
     except Exception as e:
         print(e)

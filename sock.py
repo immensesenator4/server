@@ -79,8 +79,10 @@ class Socket(object):
         newVar.__init__=funcType(alter__init__,newVar)
         newVar.__init__(obj,objects=objects)
         return newVar
-    def recieve(self,conn:socket.socket):
+    def recieve(self,conn:socket.socket=None):
+        
         return conn.recv(1024).decode()
+        
     def uncompress(self,data):
         return json.loads(data)
     def getServers(self):
@@ -234,12 +236,22 @@ class Socket(object):
         self.sock.connect((ip,port))
     def Disconect(self):
         self.sock.close()
-    
+    def Echo(self,var:str,contents:object,isSending:bool =True,conn:socket=None)->(str|None):
+        if isSending:
+            self.send(f"{var}:{contents}",conn)
+        else:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+                s.connect((self.ip, self.port)) 
+                
+                self.send(f"Recieve:{var}",conn=s)
+                return s.recv(1024).decode()
     def send(self,data:str,conn:socket.socket=None):
         if conn:
             conn.sendall(data.encode())
         else:
-            self.sock.sendall(data.encode())
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+                s.connect((self.ip, self.port)) 
+                s.sendall(data.encode())
     def host(self,hostFile:str=f"\\Udphost.py",isEcho = True,echoFile = f"\\echo.py"):
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if isEcho:
