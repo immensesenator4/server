@@ -7,8 +7,6 @@ import time
 import types
 from typing import overload
 class Socket(object):
-    
-    
     def __init__(self,reason:str="None",port:int=0,ip:str=socket.gethostbyname(socket.gethostname())):
         abcs=r"qwertuiopasdfghklzxcvbnm12345890[]\|';/.,!@#$%^&*()_-=`~"
         self.callId=""
@@ -22,6 +20,8 @@ class Socket(object):
         self.reason=reason
     def decompress_obj(self,obj,newvar,objects={}):
         return self.Reasign(obj,newvar,objects)
+    def setCallId(self,id:str):
+        self.callId =""
     def uncompileobjs(self,obj:dict|list,objects:dict={}):
         if isinstance(obj,(dict)):
             for key, value in obj.items():
@@ -85,7 +85,7 @@ class Socket(object):
         
     def uncompress(self,data):
         return json.loads(data)
-    def getServers(self):
+    def getServers(self,limitTime:int = 5,ServerCount:int=99999):
         ips=[]
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -93,9 +93,9 @@ class Socket(object):
 
         server_address = ('', self.port) 
         sock.bind(server_address)
+        s=time.time()
 
-
-        while len(ips)<1:
+        while len(ips)<ServerCount or time.time()-s<limitTime:
             data, address = sock.recvfrom(1024)  
             print(f"Received message: {data.decode()} from {address}")
             if self.reason == data.decode()and address[0] not in ips:
