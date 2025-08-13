@@ -34,7 +34,7 @@ while True:
             s.bind((newTCP.ip,newTCP.port))
             s.listen()
             conn, literal= s.accept()
-
+            
             with conn:
                     while True:
                         data = conn.recv(1024)
@@ -74,7 +74,6 @@ while True:
                                 count-=1
                             var=var.replace("'","")
                             Info[var]= new_data.encode()
-                    print(Info)
             s.close()
     except Exception as e:
         print(e)
