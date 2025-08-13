@@ -236,7 +236,7 @@ class Socket(object):
         self.sock.connect((ip,port))
     def Disconect(self):
         self.sock.close()
-    def Echo(self,var:str,contents:object="",isSending:bool =True,conn:socket=None)->(str|None):
+    def Echo(self,var:str,contents:object="",isSending:bool =False,conn:socket=None)->(object|None):
         if isSending:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
                 s.connect((self.ip, self.port)) 
@@ -246,7 +246,11 @@ class Socket(object):
                 s.connect((self.ip, self.port)) 
                 
                 self.send(f"Recieve:{var}",conn=s)
-                return json.loads(s.recv(1024).decode())
+                f=(s.recv(1024).decode())
+                try:
+                    return json.loads(f)
+                except:
+                    return f
     def send(self,data:str,conn:socket.socket=None):
         if conn:
             conn.sendall(data.encode())

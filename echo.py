@@ -51,7 +51,7 @@ while True:
                                         isVar=not isVar
                                     
                                 var=var.replace("'","")
-                                conn.sendall(Info[var].encode())
+                                conn.sendall(Info[var])
                               
 
                         else:
@@ -65,15 +65,16 @@ while True:
                                 else:
                                     var+=i
                                 count+=1
-                            
+                            var.replace("'","")
                             count = len(var)+1
                             new_data=""
                             for char in f"{data!r}":
                                 if count<0:
                                     new_data+=char
                                 count-=1
+                            var=var.replace("'","")
                             Info[var]= new_data.encode()
-            
+                    print(Info)
             s.close()
     except Exception as e:
         print(e)
