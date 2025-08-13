@@ -97,7 +97,7 @@ class Socket(object):
 
         while len(ips)<ServerCount or time.time()-s<limitTime:
             data, address = sock.recvfrom(1024)  
-            print(f"Received message: {data.decode()} from {address}")
+            # print(f"Received message: {data.decode()} from {address}")
             if self.reason == data.decode()and address[0] not in ips:
                 ips.append(address[0])
         sock.close()
