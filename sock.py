@@ -140,7 +140,7 @@ class Socket(object):
         os.system(f"taskkill /f /fi \"WINDOWTITLE eq openServer\"")
         self.sock.close()
     def killSchitzofrenia(self):
-        os.system(f"taskkill /f /fi \"WINDOWTITTLE eq echoServer")
+        os.system(f"taskkill /f /fi \"WINDOWTITTLE eq echoServer\"")
     def simplify_name_func(self,obj:str):
         shortened_name=''
         for i in obj:
@@ -238,7 +238,9 @@ class Socket(object):
         self.sock.close()
     def Echo(self,var:str,contents:object,isSending:bool =True,conn:socket=None)->(str|None):
         if isSending:
-            self.send(f"{var}:{contents}",conn)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
+                s.connect((self.ip, self.port)) 
+                self.send(f"{var}:{contents}",s)
         else:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
                 s.connect((self.ip, self.port)) 

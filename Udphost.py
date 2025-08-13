@@ -16,7 +16,6 @@ except Exception as e:
     s=0
 
 newUdp = Socket(r,int(s))
-print("hi")
 try:
     newUdp.listen()
 except Exception as e:

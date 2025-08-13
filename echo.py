@@ -1,7 +1,7 @@
 import os
 from sock import Socket
 import socket
-Info:dict[str,str] ={"n":"hollan"}
+Info:dict[str,str] ={}
 import json
 import time
 os.system("title echoServer")
@@ -18,7 +18,6 @@ except Exception as e:
     s=22
 try:
     newTCP = Socket(r,int(s))
-    print("hi")
 except Exception as e:
     print(e)
     newTCP = Socket(r,int(s))
@@ -74,7 +73,6 @@ while True:
                                     new_data+=char
                                 count-=1
                             Info[var]= new_data.encode()
-                        print(var)
             
             s.close()
     except Exception as e:
