@@ -9,7 +9,7 @@ from typing import overload
 import subprocess
 class Socket(object):
     def __init__(self,reason:str="None",port:int=0,ip:str=socket.gethostbyname(socket.gethostname())):
-        abcs=r"qwertuiopasdfghklzxcvbnm12345890[]\|';/.,!@#$%^&*()_-=`~"
+        abcs=r"qwertuiopasdfghklzxcvbnm12345890[]';/.,!@#$%^&*()_-=`~"
         self.callId:str=""
         self.sock:socket.socket = None
         self.ip:str=ip
@@ -156,7 +156,7 @@ class Socket(object):
                 else:
                     try:
                         obj_dict=var.__dict__
-                        obj_dict['object']=self.simplify_name_func(str(obj))
+                        obj_dict['object']=self.simplify_name_func(str(var))
                         z= self.simplify(obj_dict)
                     except:
                         z= key
