@@ -4,7 +4,7 @@ import socket
 Info:dict[str,str] ={}
 import json
 import time
-os.system("title echoServer")
+
 r="testForPython"
 try:
     sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -21,10 +21,6 @@ try:
 except Exception as e:
     print(e)
     newTCP = Socket(r,int(s))
-try:
-    newTCP.host(isEcho=False)
-except Exception as e:
-    print(e)
 
 
 while True:
@@ -52,8 +48,23 @@ while True:
                                     
                                 var=var.replace("'","")
                                 conn.sendall(Info[var])
-                              
-
+                            
+                        elif "File" in f"{data!r}":
+                            for i in f"{data!r}":
+                                if count==0:
+                                    pass
+                                elif i == ":":
+                                    break
+                                else:
+                                    var+=i
+                                count+=1
+                            var.replace("'","")
+                            count = len(var)+6
+                            new_data=""
+                            for char in f"{data!r}":
+                                if count<0:
+                                    new_data+=char
+                                count-=1
                         else:
                             var=""
                             count=0

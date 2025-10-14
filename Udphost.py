@@ -2,7 +2,7 @@ from sock import Socket
 import socket
 import json
 import os
-os.system("title openServer")
+
 r=""
 try:
     sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)

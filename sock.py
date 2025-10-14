@@ -6,23 +6,24 @@ import ast
 import time
 import types
 from typing import overload
+import subprocess
 class Socket(object):
     def __init__(self,reason:str="None",port:int=0,ip:str=socket.gethostbyname(socket.gethostname())):
         abcs=r"qwertuiopasdfghklzxcvbnm12345890[]\|';/.,!@#$%^&*()_-=`~"
-        self.callId=""
-        self.sock = None
-        self.ip=ip
-        self.port =port
+        self.callId:str=""
+        self.sock:socket.socket = None
+        self.ip:str=ip
+        self.port:int =port
+        self.HostList:dict[str,subprocess.Popen]={}
         for i in range(0,r.randint(7,38)):
             e=r.randint(0,len(abcs)-1)
             self.callId+=abcs[e]
-           
-        self.reason=reason
-    def decompress_obj(self,obj,newvar,objects={}):
+        self.reason:str=reason
+    def decompress_obj(self,obj,newvar,objects={})->object:
         return self.Reasign(obj,newvar,objects)
     def setCallId(self,id:str):
-        self.callId =""
-    def uncompileobjs(self,obj:dict|list,objects:dict={}):
+        self.callId =id
+    def uncompileobjs(self,obj:dict|list,objects:dict={})->dict|list:
         if isinstance(obj,(dict)):
             for key, value in obj.items():
                 if isinstance(value,(dict)):
@@ -61,7 +62,7 @@ class Socket(object):
                     pass
             pass
         return obj
-    def Reasign(self,obj:dict,newVar:object,objects:dict={}):
+    def Reasign(self,obj:dict,newVar:object,objects:dict={})->object:
         def alter__init__(self,new_dict:dict,Reasign=self.Reasign,uncompiledobjs=self.uncompileobjs,objects:dict={}):
              for key, value in new_dict.items():
                 if isinstance(value,(list,dict)):
@@ -79,11 +80,12 @@ class Socket(object):
         newVar.__init__=funcType(alter__init__,newVar)
         newVar.__init__(obj,objects=objects)
         return newVar
-    def recieve(self,conn:socket.socket=None):
-        
-        return conn.recv(1024).decode()
-        
-    def uncompress(self,data):
+    def recieve(self,conn:socket.socket=None)->str:
+        if conn:
+            return conn.recv(1024).decode()
+        else:
+            return self.sock.recv(1024).decode()
+    def uncompress(self,data)->any:
         return json.loads(data)
     def getServers(self,limitTime:int = 5,ServerCount:int=99999):
         ips=[]
@@ -117,36 +119,13 @@ class Socket(object):
             time.sleep(2)  
         sock.close()
 
-    def sendFile(self,File:str):
-        f=open(File,"rb")
-        data=f.read(1024)
-        while data:
-            self.sock.send(data)
-            data=f.read(1024)
-        self.sock.send("$$".encode())
-        f.close()
-    def recieveFile(self,conn:socket.socket):
-        f=""
-        while True:
-            try:
-                data= conn.recv(1024).decode()
-                if "$$" in data:
-                    break
-                f+=data
-            except:
-                break
-        return f
-    def ServerClose(self):
-        os.system(f"taskkill /f /fi \"WINDOWTITLE eq openServer\"")
-        self.sock.close()
-    def killSchitzofrenia(self):
-        os.system(f"taskkill /f /fi \"WINDOWTITTLE eq echoServer\"")
-    def simplify_name_func(self,obj:str):
+    def simplify_name_func(self,obj:str)->str:
         shortened_name=''
         for i in obj:
-            if i ==' ':
+            if 'object'in shortened_name:
+                shortened_name=shortened_name[0:-6]
                 break
-            elif "<":
+            elif "<" == i:
                 pass
             else:
                 shortened_name+=i
@@ -217,10 +196,11 @@ class Socket(object):
             
         
         return deep_coppy
-    def compressFile(self,File:str):
-        fileText=""
+    def compressFile(self,File:str)->str:
+        fileText:str=""
         with open(os.getcwd()+"\\"+File,"r+")as f:
             fileText=f.read()
+        fileText+="$$"
         return self.compress(fileText)
 
     def compress(self,data):
@@ -231,62 +211,44 @@ class Socket(object):
         
         y = json.dumps(z)
         return y
-    def connectServer(self,ip:str,port:int):
+    def ClientConnect(self,ip:str,port:int):
+        self.ip=ip
+        self.port=port
+    def connect(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((ip,port))
+        try:
+            self.sock.connect((self.ip,self.port))
+        except:
+            pass
     def Disconect(self):
         self.sock.close()
-    def Echo(self,var:str,contents:object="",isSending:bool =False,conn:socket=None)->(object|None):
-        if isSending:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
-                s.connect((self.ip, self.port)) 
-                self.send(f"{var}:{json.dumps(contents)}",s)
-        else:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
-                s.connect((self.ip, self.port)) 
-                
-                self.send(f"Recieve:{var}",conn=s)
-                f=(s.recv(1024).decode())
-                try:
-                    return json.loads(f)
-                except:
-                    return f
+
     def send(self,data:str,conn:socket.socket=None):
         if conn:
             conn.sendall(data.encode())
         else:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
-                s.connect((self.ip, self.port)) 
-                s.sendall(data.encode())
-    def host(self,hostFile:str=f"\\Udphost.py",isEcho = True,echoFile = f"\\echo.py"):
-        self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if isEcho:
-            os.system(f"start cmd.exe /c python {os.getcwd()}{echoFile}")
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(("127.0.0.1",2))
-                s.listen()
-                conn, literal= s.accept()
-                conn.sendall(json.dumps(self.port).encode())
-                conn.sendall(self.reason.encode())
-                conn.close()
-        self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if not isEcho:
-            os.system(f"start cmd.exe /c python {os.getcwd()}{hostFile}")
-        
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(("127.0.0.1",2))
-                s.listen()
-                conn, literal= s.accept()
-                conn.sendall(json.dumps(self.port).encode())
-                conn.sendall(self.reason.encode())
+            self.sock.sendall(data.encode())
             
+    def host(self,hostFile:str):        
+        self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.HostList[hostFile[0:-3]]=(subprocess.Popen(["python", hostFile]))
+        
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1",2))
+            s.listen()
+            conn, literal= s.accept()
+            conn.sendall(json.dumps(self.port).encode())
+            conn.sendall(self.reason.encode())
+    def TerminateAll(self):
+        for i in self.HostList.keys():
+            self.HostList[i].terminate()
 if __name__ == "__main__":
     h=Socket("testForPython",22)
     # print("why")
-    h.host()
+    h.host("echo.py")
+    h.host("Udphost.py")
     input()
-    h.killSchitzofrenia()
-    h.ServerClose()
+    h.TerminateAll()
     # s=None
     # while not s:
     #     h.sock.listen()
