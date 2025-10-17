@@ -7,6 +7,8 @@ import time
 import types
 from typing import overload
 import subprocess
+import asyncio
+
 class Socket(object):
     def __init__(self,reason:str="None",port:int=0,ip:str=socket.gethostbyname(socket.gethostname())):
         abcs=r"qwertuiopasdfghklzxcvbnm12345890[]';/.,!@#$%^&*()_-=`~"
@@ -19,11 +21,11 @@ class Socket(object):
             e=r.randint(0,len(abcs)-1)
             self.callId+=abcs[e]
         self.reason:str=reason
-    def decompress_obj(self,obj,newvar,objects={})->object:
+    def decompress_obj(self,obj,newvar,objects=None)->object:
         return self.Reasign(obj,newvar,objects)
     def setCallId(self,id:str):
         self.callId =id
-    def uncompileobjs(self,obj:dict|list,objects:dict={})->dict|list:
+    def uncompileobjs(self,obj:dict|list,objects:dict=None)->dict|list:
         if isinstance(obj,(dict)):
             for key, value in obj.items():
                 if isinstance(value,(dict)):
@@ -63,61 +65,82 @@ class Socket(object):
             pass
         return obj
     def Reasign(self,obj:dict,newVar:object,objects:dict={})->object:
-        def alter__init__(self,new_dict:dict,Reasign=self.Reasign,uncompiledobjs=self.uncompileobjs,objects:dict={}):
-             for key, value in new_dict.items():
-                if isinstance(value,(list,dict)):
-                    if isinstance(value,(list)):
-                        z=uncompiledobjs(value,objects)
+        newobj = newVar.__new__(newVar)
+        # def alter__init__(self,new_dict:dict,Reasign=self.Reasign,uncompiledobjs=self.uncompileobjs,objects:dict={}):
+        for key, value in obj.items():
+            if isinstance(value,(list,dict)):
+                if isinstance(value,(list)):
+                    z=self.uncompileobjs(value,objects)
+                else:
+                    if "object" in value.keys():
+                        z=self.Reasign(value,objects[value["object"]],objects)
                     else:
-                        if "object" in value.keys():
-                            z=Reasign(value,objects[value["object"]],objects)
-                        else:
-                            z=uncompiledobjs(value,objects)
-                    setattr(self,key,z)
-                else:    
-                    setattr(self, key, value) 
-        funcType = types.MethodType
-        newVar.__init__=funcType(alter__init__,newVar)
-        newVar.__init__(obj,objects=objects)
-        return newVar
+                        z=self.uncompileobjs(value,objects)
+                if "object" in key:
+                    pass
+                else:
+                    setattr(newobj ,key,z)
+            else:    
+                if "object" in key:
+                    pass
+                else:
+                    setattr(newobj, key, value) 
+        # funcType = types.MethodType
+        # newVar.__init__=funcType(alter__init__,newVar)
+        # newVar.__init__(obj,objects=objects)
+        return newobj
     def recieve(self,conn:socket.socket=None)->str:
         if conn:
             return conn.recv(1024).decode()
         else:
             return self.sock.recv(1024).decode()
     def uncompress(self,data)->any:
-        return json.loads(data)
-    def getServers(self,limitTime:int = 5,ServerCount:int=99999):
-        ips=[]
+        return json.loads(data)       
+    def Beacon(self, interval: float = 2.0, stop_event: asyncio.Event = None):
+        asyncio.run(self.listen(interval, stop_event = None)) 
+    async def listen(self, interval: float = 2.0, stop_event: asyncio.Event = None):
+   
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
-        server_address = ('', self.port) 
-        sock.bind(server_address)
-        s=time.time()
+        loop = asyncio.get_running_loop()
+        message = self.reason.encode()
 
-        while len(ips)<ServerCount or time.time()-s<limitTime:
-            data, address = sock.recvfrom(1024)  
-            # print(f"Received message: {data.decode()} from {address}")
-            if self.reason == data.decode()and address[0] not in ips:
-                ips.append(address[0])
-        sock.close()
+        try:
+            while stop_event is None or not stop_event.is_set():
+                await loop.run_in_executor(None, sock.sendto, message, ('<broadcast>', self.port))
+                await asyncio.sleep(interval)
+        finally:
+            sock.close()
+    def getIPs(self, limitTime: int = 5, ServerCount: int = 99999):
+        return asyncio.run(self.getServers(limitTime,ServerCount))
+    async def getServers(self, limitTime: int = 5, ServerCount: int = 99999):
+        ips = []
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock.bind(('', self.port))
+        sock.setblocking(False)
+
+        loop = asyncio.get_running_loop()
+        start_time = loop.time()
+
+        try:
+            while len(ips) < ServerCount and (loop.time() - start_time) < limitTime:
+                try:
+                    data, addr = await loop.run_in_executor(None, sock.recvfrom, 1024)
+                    data = data.decode()
+                    if data == self.reason and addr[0] not in ips:
+                        ips.append(addr[0])
+                except BlockingIOError:
+                    await asyncio.sleep(0.1)  
+        finally:
+            sock.close()
+
         return ips
 
-    def listen(self):
-        
+ 
+    
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        n=True
-        message = f"{self.reason}".encode()
-        while n:
-            sock.sendto(message, ('<broadcast>', self.port))
-           
-                
-            time.sleep(2)  
-        sock.close()
 
     def simplify_name_func(self,obj:str)->str:
         shortened_name=''
@@ -228,37 +251,25 @@ class Socket(object):
             conn.sendall(data.encode())
         else:
             self.sock.sendall(data.encode())
-            
+    #uses a Host File to open a python Socket Server        
     def host(self,hostFile:str):        
         self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.HostList[hostFile[0:-3]]=(subprocess.Popen(["python", hostFile]))
-        
+
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(("127.0.0.1",2))
+            s.bind(("127.0.0.1",20))
             s.listen()
             conn, literal= s.accept()
             conn.sendall(json.dumps(self.port).encode())
             conn.sendall(self.reason.encode())
-    def TerminateAll(self):
+    def terminate(self,process:str):
+        self.HostList[process].terminate()
+    def terminateAll(self):
         for i in self.HostList.keys():
             self.HostList[i].terminate()
 if __name__ == "__main__":
     h=Socket("testForPython",22)
-    # print("why")
-    h.host("echo.py")
+    h.host("echo.py") 
     h.host("Udphost.py")
     input()
-    h.TerminateAll()
-    # s=None
-    # while not s:
-    #     h.sock.listen()
-    #     conn,addr = h.sock.accept()
-    #     try:
-    #         data = h.recieve(conn)
-    #         print("from "+str(addr) + " recieved " +str(data))
-    #         s=data
-    #     except Exception as e:
-    #         print(e)
-    # print(s)
-
-    # h.ServerClose()
+    h.terminateAll()
