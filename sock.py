@@ -21,10 +21,13 @@ class Socket(object):
             e=r.randint(0,len(abcs)-1)
             self.callId+=abcs[e]
         self.reason:str=reason
+    #start of the decompress obj tree which decompresses an object and reasigns variables
     def decompress_obj(self,obj,newvar,objects=None)->object:
         return self.Reasign(obj,newvar,objects)
+    #sets variable call id
     def setCallId(self,id:str):
         self.callId =id
+    #  uncompiles dictionarys and lists to be returned into the project
     def uncompileobjs(self,obj:dict|list,objects:dict=None)->dict|list:
         if isinstance(obj,(dict)):
             for key, value in obj.items():
@@ -64,9 +67,9 @@ class Socket(object):
                     pass
             pass
         return obj
+    #reasign's all class variables
     def Reasign(self,obj:dict,newVar:object,objects:dict={})->object:
         newobj = newVar.__new__(newVar)
-        # def alter__init__(self,new_dict:dict,Reasign=self.Reasign,uncompiledobjs=self.uncompileobjs,objects:dict={}):
         for key, value in obj.items():
             if isinstance(value,(list,dict)):
                 if isinstance(value,(list)):
@@ -85,9 +88,6 @@ class Socket(object):
                     pass
                 else:
                     setattr(newobj, key, value) 
-        # funcType = types.MethodType
-        # newVar.__init__=funcType(alter__init__,newVar)
-        # newVar.__init__(obj,objects=objects)
         return newobj
     def recieve(self,conn:socket.socket=None)->str:
         if conn:
@@ -155,7 +155,6 @@ class Socket(object):
         return shortened_name
     def simplify(self,obj:dict|list, is_dict:bool=True)->dict|list:
         excludables=(int,str,float,dict,list,tuple,bool,bytes)
-        
         if is_dict:
             ran=False
             deep_coppy={}
